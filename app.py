@@ -1,7 +1,8 @@
-from flask import Flask,jsonify
-from flask_cors import CORS
+from flask import Flask,jsonify,request
+from flask_cors import CORS,cross_origin
 app = Flask(__name__)
 CORS(app)
+app.config['CORS_HEADERS']='Content-Type'
 products=[
 {"id":0,"name":"Notebook Acer Swift","price":45900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0147295/A0147295_s.jpg"},
 {"id":1,"name":"Notebook Asus Vivo","price":19900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0146010/A0146010_s.jpg"},
@@ -10,12 +11,26 @@ products=[
 {"id":4,"name":"Notebook DELL XPS","price":99900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0146335/A0146335_s.jpg"},
 {"id":5,"name":"Notebook HP Envy","price":46900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0145712/A0145712_s.jpg"}];
 
+
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
 
 @app.route("/products",methods=["GET"])
 def get_all_products():
+    return jsonify(products),200
+
+@app.route("/products",methods=["POST"])
+@cross_origin()
+def post_products():
+    data = request.get_json(products)
+    new_pro={
+        "id":data["id"],
+        "name":data["name"],
+        "price":data["price"]
+        
+    }
+    products.append(new_pro);
     return jsonify(products),200
 
 
