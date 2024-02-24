@@ -33,6 +33,28 @@ def post_products():
     products.append(new_pro);
     return jsonify(products),200
 
+# @app.route("/products",methods=["PUT"])
+# @cross_origin()
+# def put_products():
+
+
+@app.route("/products/<int:id>",methods=["DELETE"])
+@cross_origin()
+def del_products(id):
+    pro_id=str(id)
+    prod = None
+    for p in products:
+        t = str(p["id"])
+        if t == pro_id:
+            prod = p
+            break
+    if prod:
+        products.remove(prod)
+        return jsonify(products),200
+    else:
+        return jsonify(products),404
+  
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5000,debug=True)
