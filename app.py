@@ -5,14 +5,26 @@ app = Flask(__name__)
 uri = "mongodb+srv://mongo:mongo@cluster0.cgejftk.mongodb.net/?retryWrites=true&w=majority"
 CORS(app)
 app.config['CORS_HEADERS']='Content-Type'
-products=[
-{"id":0,"name":"Notebook Acer Swift","price":45900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0147295/A0147295_s.jpg"},
-{"id":1,"name":"Notebook Asus Vivo","price":19900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0146010/A0146010_s.jpg"},
-{"id":2,"name":"Notebook Lenovo Ideapad","price":32900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0149009/A0149009_s.jpg"},
-{"id":3,"name":"Notebook MSI Prestige","price":54900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0149954/A0149954_s.jpg"},
-{"id":4,"name":"Notebook DELL XPS","price":99900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0146335/A0146335_s.jpg"},
-{"id":5,"name":"Notebook HP Envy","price":46900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0145712/A0145712_s.jpg"}];
+# products=[
+# {"id":0,"name":"Notebook Acer Swift","price":45900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0147295/A0147295_s.jpg"},
+# {"id":1,"name":"Notebook Asus Vivo","price":19900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0146010/A0146010_s.jpg"},
+# {"id":2,"name":"Notebook Lenovo Ideapad","price":32900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0149009/A0149009_s.jpg"},
+# {"id":3,"name":"Notebook MSI Prestige","price":54900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0149954/A0149954_s.jpg"},
+# {"id":4,"name":"Notebook DELL XPS","price":99900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0146335/A0146335_s.jpg"},
+# {"id":5,"name":"Notebook HP Envy","price":46900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0145712/A0145712_s.jpg"}];
 
+client = MongoClient(uri)
+db = client["products"]
+collection = db["prod_info"]
+products=[]
+all_pro = collection.find()
+for pro in all_pro:
+    new_p={
+        "id":pro["id"],
+        "name":pro["name"],
+        "price":pro["price"]
+    }
+    products.append(new_p)
 
 @app.route("/")
 def hello_world():
@@ -20,6 +32,7 @@ def hello_world():
 
 @app.route("/products",methods=["GET"])
 def get_all_products():
+    # print(products)
     return jsonify(products),200
 
 @app.route("/products",methods=["POST"])
@@ -32,6 +45,11 @@ def post_products():
         "price":data["price"]
         
     }
+    collection.insert_one({
+        "id":data["id"],
+        "name":data["name"],
+        "price":data["price"]
+    })
     products.append(new_pro);
     return jsonify(products),200
 
@@ -48,9 +66,9 @@ def put_products(id):
     if prod:
         data = request.get_json(products)
         prod.update(data)
-        return jsonify(products),200
+        return jsonify(prod),200
     else:
-        return jsonify(products),404
+        return jsonify(prod),404
 
 
 @app.route("/products/<int:id>",methods=["DELETE"])
