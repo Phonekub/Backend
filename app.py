@@ -32,7 +32,6 @@ def hello_world():
 
 @app.route("/products",methods=["GET"])
 def get_all_products():
-    # print(products)
     return jsonify(products),200
 
 @app.route("/products",methods=["POST"])
@@ -66,9 +65,14 @@ def put_products(id):
     if prod:
         data = request.get_json(products)
         prod.update(data)
-        return jsonify(prod),200
+        collection.update_many( {"id":pro_id},
+                                {"$set":{"name":data["name"],
+                                        "price":data["price"]                          
+                                        }
+                                })
+        return jsonify(products),200
     else:
-        return jsonify(prod),404
+        return jsonify(products),404
 
 
 @app.route("/products/<int:id>",methods=["DELETE"])
@@ -83,6 +87,7 @@ def del_products(id):
             break
     if prod:
         products.remove(prod)
+        collection.delete_one({"id":pro_id})
         return jsonify(products),200
     else:
         return jsonify(products),404
